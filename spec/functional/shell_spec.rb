@@ -29,6 +29,8 @@ describe Shell do
   describe "smoke tests", :unix_only => true do
     include Chef::Mixin::Command::Unix
 
+    TIMEOUT=30
+
     def read_until(io, expected_value)
       start = Time.new
       buffer = ""
@@ -38,8 +40,8 @@ describe Shell do
         rescue Errno::EWOULDBLOCK, Errno::EAGAIN, Errno::EIO, EOFError
           sleep 0.01
         end
-        if Time.new - start > 30
-          raise "did not read expected value `#{expected_value}' within 15s\n" +
+        if Time.new - start > TIMEOUT
+          raise "did not read expected value `#{expected_value}' within #{TIMEOUT}s\n" +
                 "Buffer so far: `#{buffer}'"
         end
       end
@@ -56,8 +58,8 @@ describe Shell do
         rescue EOFError, Errno::EIO
           break
         end
-        if Time.new - start > 30
-          raise "timed out waiting for output to end"
+        if Time.new - start > TIMEOUT
+          raise "timed out after #{TIMEOUT}s waiting for output to end"
         end
       end
     end
