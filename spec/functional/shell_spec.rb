@@ -46,6 +46,22 @@ describe Shell do
       buffer
     end
 
+    def flush_output(io)
+      start = Time.new
+      loop do
+        begin
+          io.read_nonblock(1)
+        rescue Errno::EWOULDBLOCK, Errno::EAGAIN
+          sleep 0.01
+        rescue EOFError, Errno::EIO
+          break
+        end
+        if Time.new - start > 30
+          raise "timed out waiting for output to end"
+        end
+      end
+    end
+
     def wait_or_die(pid)
       start = Time.new
 
@@ -71,7 +87,7 @@ describe Shell do
           stdin.write("'done'\n")
           output = read_until(stdout, '=> "done"')
           stdin.print("exit\n")
-          read_until(stdout, "\n")
+          flush_output(stdout)
         end
 
         [output, status.exitstatus]
@@ -88,7 +104,7 @@ describe Shell do
           writer.puts('"done"')
           output = read_until(reader, '=> "done"')
           writer.print("exit\n")
-          read_until(reader, "\n")
+          flush_output(reader)
           writer.close
 
           exitstatus = wait_or_die(pid)

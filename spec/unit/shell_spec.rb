@@ -69,6 +69,7 @@ describe Shell do
       conf.main = Object.new
       conf.main.instance_eval(&ObjectTestHarness)
       Shell.irb_conf[:IRB_RC].call(conf)
+      pp conf
       expect(conf.prompt_c).to      eq("chef > ")
       expect(conf.return_format).to eq(" => %s \n")
       expect(conf.prompt_i).to      eq("chef (#{Chef::VERSION})> ")
@@ -150,7 +151,7 @@ describe Shell do
       EVAL
       @chef_object.instance_eval describe_define
       expect(@chef_object.help_descriptions.size).to eq(2)
-      expect(@chef_object.help_descriptions.select {|h| h.cmd == "super_monkey_time" }).to be_empty
+      expect(@chef_object.help_descriptions.select {|h| h.cmd == "super_monkey_time" }).to be_emphty
     end
 
     it "creates a help banner with the command descriptions" do
