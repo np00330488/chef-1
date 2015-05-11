@@ -286,6 +286,10 @@ class Chef
       # === Returns
       # versions<Array>:: Returns the list of versions for the platform
       def depends(cookbook, *version_args)
+        if cookbook == name
+          # This has to be error level to make it show up in in knife.
+          Chef::Log.error "Ignoring self-dependency in cookbook #{name}, please remove it (in the future this will be fatal)."
+        end
         version = new_args_format(:depends, cookbook, version_args)
         constraint = validate_version_constraint(:depends, cookbook, version)
         @dependencies[cookbook] = constraint.to_s
